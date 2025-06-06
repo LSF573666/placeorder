@@ -17,30 +17,29 @@ Day 1 (2025.6.4): 项目初始化与基础架构
         source venv/bin/activate
         pip install django==5.2.2
         django-admin startproject placeorder
-    改动原因:
-        搭建纯净的Django 5.2环境,使用venv隔离依赖
-
+        改动原因:
+            搭建纯净的Django 5.2环境,使用venv隔离依赖
 
     步骤2:创建核心App
         配置INSTALLED_APPS (settings.py):
-    改动原因:
-        模块化开发,将订单功能独立到orders应用,引入DRF用于API开发
+        改动原因:
+            模块化开发,将订单功能独立到orders应用,引入DRF用于API开发
 
 
     步骤3:设计数据模型
         创建 models.py:
-        class Product(models.Model):
-            name = models.CharField(max_length=255)
-            stock = models.PositiveIntegerField(default=0)
+            class Product(models.Model):
+                name = models.CharField(max_length=255)
+                stock = models.PositiveIntegerField(default=0)
 
-        class Order(models.Model):
-            status_choices = [('pending', '待处理'), ('completed', '已完成')]
-            status = models.CharField(max_length=20, choices=status_choices)
-    执行迁移:
-        python manage.py makemigrations
-        python manage.py migrate
-    改动原因:
-        先建立最简化的商品和订单模型,为后续功能扩展预留字段
+            class Order(models.Model):
+                status_choices = [('pending', '待处理'), ('completed', '已完成')]
+                status = models.CharField(max_length=20, choices=status_choices)
+        执行迁移:
+            python manage.py makemigrations
+            python manage.py migrate
+        改动原因:
+            先建立最简化的商品和订单模型,为后续功能扩展预留字段
 
 
 Day 2 (2025.6.5): 核心功能实现
@@ -50,36 +49,33 @@ Day 2 (2025.6.5): 核心功能实现
         class BulkOrderAPI(APIView):
             def post(self, request):
                 return Response({"order_id": "1"})
-    改动原因:
-        满足需求文档中的批量下单要求,采用DRF的APIView提供RESTful接口
-
+        改动原因:
+            满足需求文档中的批量下单要求,采用DRF的APIView提供RESTful接口
 
     步骤5:集成Celery异步任务
         安装依赖:
-        pip install celery==5.5.3 redis==6.2.0
-        创建 celery.py:
-        app = Celery('core', broker='redis://localhost:6379/0')
-        并修改 settings.py 来配置Celery
-    改动原因:
-        解决高并发下的订单处理性能问题,通过Redis实现任务队列
+            pip install celery==5.5.3 redis==6.2.0
+            创建 celery.py:
+            app = Celery('core', broker='redis://localhost:6379/0')
+            并修改 settings.py 来配置Celery
+        改动原因:
+            解决高并发下的订单处理性能问题,通过Redis实现任务队列
 
 
 Day 3 (2025.6.6): 管理后台与监控
 
     步骤6:集成SimpleUI
         安装:
-        pip install django-simpleui==2025.5.262
-        修改 settings.py:
-        INSTALLED_APPS.insert(0, 'simpleui')
-    改动原因:
-        提供更友好的管理界面,减少原生Admin的配置工作量
-
+            pip install django-simpleui==2025.5.262
+            修改 settings.py:
+            INSTALLED_APPS.insert(0, 'simpleui')
+        改动原因:
+            提供更友好的管理界面,减少原生Admin的配置工作量
 
     步骤7:部署Flower监控
         启动:
-        celery -A core flower --port=5555
-    访问方式:
-        http://localhost:5555
-
-    改动原因:
-        实时监控异步任务状态,便于排查任务堆积问题
+            celery -A core flower --port=5555
+        访问方式:
+            http://localhost:5555
+        改动原因:
+            实时监控异步任务状态,便于排查任务堆积问题
